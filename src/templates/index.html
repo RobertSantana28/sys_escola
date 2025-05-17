@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bem-vindo à Nossa Escola</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="#sobre">Sobre Nós</a></li>
+                <li><a href="#infraestrutura">Infraestrutura</a></li>
+                <li><a href="#galeria">Galeria</a></li>
+                <li><a href="#contato">Contato</a></li>
+                <li><a href="/login_professores">Portal do Professor</a></li>
+                <li><a href="/login_pais">Portal dos Pais</a></li>
+                <li><a href="/login_admin">Portal do Gestor</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main>
+        <section id="hero">
+            <h1>Bem-vindo à [Nome da Escola]</h1>
+            <p>Construindo futuros brilhantes, um aluno de cada vez.</p>
+            <a href="#sobre" class="cta-button">Saiba Mais</a>
+        </section>
+
+        <section id="sobre">
+            <h2>Sobre Nós</h2>
+            <p>A [Nome da Escola] tem uma rica história de excelência educacional, comprometida em nutrir mentes jovens e prepará-las para os desafios do futuro. Nossa missão é fornecer um ambiente de aprendizado estimulante e inclusivo, onde cada aluno possa alcançar seu pleno potencial. Valorizamos a curiosidade, o pensamento crítico e o respeito mútuo, formando cidadãos conscientes e preparados para contribuir positivamente para a sociedade. Contamos com uma equipe de educadores dedicados e apaixonados pelo ensino, que buscam constantemente inovar em suas práticas pedagógicas para oferecer uma educação de qualidade superior.</p>
+        </section>
+
+        <section id="infraestrutura">
+            <h2>Nossa Infraestrutura</h2>
+            <p>Oferecemos instalações modernas e bem equipadas para apoiar o aprendizado e o desenvolvimento integral de nossos alunos. Nossa infraestrutura inclui laboratórios de ciências de última geração, uma biblioteca com vasto acervo, salas de aula multimídia, espaços de arte e música, além de amplas áreas esportivas e de recreação. Acreditamos que um ambiente físico adequado é fundamental para estimular a criatividade, a colaboração e o bem-estar dos estudantes, proporcionando as ferramentas necessárias para uma jornada educacional completa e enriquecedora.</p>
+        </section>
+
+        <section id="galeria">
+            <h2>Galeria de Momentos</h2>
+            <div class="gallery-container">
+                <!-- Imagens da galeria serão adicionadas aqui -->
+                <p>Em breve, você poderá visualizar aqui fotos de nossas instalações, eventos e atividades escolares.</p>
+            </div>
+        </section>
+
+        <section id="contato">
+            <h2>Entre em Contato</h2>
+            <p>Estamos sempre prontos para atendê-lo. Entre em contato conosco para mais informações, agendar uma visita ou tirar suas dúvidas.</p>
+            <address>
+                Rua Exemplo, 123, Bairro Modelo<br>
+                Cidade Exemplo, Estado UF - CEP 00000-000<br>
+                Telefone: (XX) XXXX-XXXX<br>
+                Email: <a href="mailto:contato@nomedaescola.com.br">contato@nomedaescola.com.br</a>
+            </address>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

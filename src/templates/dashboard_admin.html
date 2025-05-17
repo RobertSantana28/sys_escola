@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Administrador - Nome da Escola</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <a href="{{ url_for('home') }}">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Página Inicial</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container dashboard-container">
+        <section id="admin-dashboard">
+            <h2>Painel do Administrador</h2>
+            <p>Bem-vindo, {{ session.get('nome_display_admin', 'Admin') }}! Gerencie professores e alunos.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="management-section">
+                <h3>Gerenciar Professores</h3>
+                <a href="{{ url_for('admin_gerenciar_professores') }}" class="cta-button">Ver/Cadastrar Professores</a>
+            </div>
+
+            <div class="management-section">
+                <h3>Gerenciar Alunos</h3>
+                <a href="{{ url_for('admin_gerenciar_alunos') }}" class="cta-button">Ver/Cadastrar Alunos</a>
+            </div>
+            
+            <div class="management-section">
+                <h3>Gerenciar Turmas</h3>
+                <a href="{{ url_for('admin_gerenciar_turmas') }}" class="cta-button">Ver/Cadastrar Turmas</a>
+            </div>
+
+            <div class="management-section">
+                <h3>Gerenciar Mensalidades</h3>
+                <a href="{{ url_for('admin_gerenciar_mensalidades') }}" class="cta-button">Gerenciar Mensalidades</a>
+            </div>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
+

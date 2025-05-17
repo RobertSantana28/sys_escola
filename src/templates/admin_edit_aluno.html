@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Aluno - Admin</title>
+    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/style.css\') }}">
+    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/dashboard.css\') }}">
+    <style>
+        .form-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .form-container h4 {
+            margin-top: 0;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <a href="{{ url_for(\'home\') }}">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="{{ url_for(\'admin_gerenciar_alunos\') }}">Gerenciar Alunos</a></li>
+                <li><a href="{{ url_for(\'dashboard_admin\') }}">Painel Admin</a></li>
+                <li><a href="{{ url_for(\'logout\') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container dashboard-container">
+        <section id="edit-aluno">
+            <h2>Editar Aluno</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% if aluno %}
+            <div class="form-container">
+                <form method="POST" action="{{ url_for(\'admin_edit_aluno_post\', aluno_id=aluno_id, turma_original=turma_original) }}">
+                    <div class="form-group">
+                        <label for="nome_aluno">Nome Completo do Aluno:</label>
+                        <input type="text" id="nome_aluno" name="nome_aluno" value="{{ aluno.nome }}" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="turma_aluno">Turma:</label>
+                        <select id="turma_aluno" name="turma_aluno" required>
+                            {% for turma_item in todas_turmas %}
+                            <option value="{{ turma_item }}" {% if turma_item == turma_original %}selected{% endif %}>{{ turma_item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pai_username_aluno">Usuário do Pai/Responsável:</label>
+                        <input type="text" id="pai_username_aluno" name="pai_username_aluno" value="{{ aluno.pai_username }}" required>
+                    </div>
+                    <button type="submit" class="cta-button">Salvar Alterações</button>
+                </form>
+            </div>
+            {% else %}
+            <p>Aluno não encontrado.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
+

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Alunos - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .actions a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #e8491d;
+        }
+        .actions a:hover {
+            text-decoration: underline;
+        }
+        .form-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .form-container h4 {
+            margin-top: 0;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-container th, .table-container td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .table-container th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <a href="{{ url_for('home') }}">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('dashboard_admin') }}">Painel Admin</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container dashboard-container">
+        <section id="manage-alunos">
+            <h2>Gerenciar Alunos</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="form-container">
+                <h4>Adicionar Novo Aluno</h4>
+                <form method="POST" action="{{ url_for('admin_add_aluno') }}">
+                    <div class="form-group">
+                        <label for="nome_aluno">Nome Completo do Aluno:</label>
+                        <input type="text" id="nome_aluno" name="nome_aluno" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="turma_aluno">Turma:</label>
+                        <select id="turma_aluno" name="turma_aluno" required>
+                            {% for turma_item in turmas %}
+                            <option value="{{ turma_item }}">{{ turma_item }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="pai_username_aluno">Usuário do Pai/Responsável (para login dos pais):</label>
+                        <input type="text" id="pai_username_aluno" name="pai_username_aluno" required>
+                        <small>Certifique-se que o pai/responsável já está cadastrado ou será cadastrado no sistema de pais.</small>
+                    </div>
+                    <button type="submit" class="cta-button">Adicionar Aluno</button>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <h4>Alunos Cadastrados</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID Aluno</th>
+                            <th>Nome</th>
+                            <th>Turma</th>
+                            <th>Pai/Responsável (Usuário)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for turma, lista_alunos in alunos_por_turma.items() %}
+                            {% for aluno in lista_alunos %}
+                            <tr>
+                                <td>{{ aluno.id }}</td>
+                                <td>{{ aluno.nome }}</td>
+                                <td>{{ turma }}</td>
+                                <td>{{ aluno.pai_username }}</td>
+                                <td class="actions">
+                                    <a href="{{ url_for('admin_edit_aluno_get', aluno_id=aluno.id, turma=turma) }}">Editar</a>
+                                    <a href="{{ url_for('admin_delete_aluno', aluno_id=aluno.id, turma=turma) }}" onclick="return confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.');">Excluir</a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="5">Nenhum aluno cadastrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
+

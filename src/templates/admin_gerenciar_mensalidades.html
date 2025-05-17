@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Mensalidades - Admin</title>
+    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/style.css\') }}">
+    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/dashboard.css\') }}">
+    <style>
+        .table-mensalidades {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .table-mensalidades th, .table-mensalidades td {
+            border: 1px solid #ddd;
+            padding: 10px;
+            text-align: left;
+        }
+        .table-mensalidades th {
+            background-color: #f2f2f2;
+        }
+        .actions-form {
+            display: inline-block;
+            margin-right: 5px;
+        }
+        .actions-form button, .actions-form select, .actions-form input[type=\"date\"] {
+            padding: 5px 8px;
+            font-size: 0.9em;
+        }
+        .filter-form {
+            margin-bottom: 20px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .filter-form label {
+            margin-right: 10px;
+        }
+        .filter-form input, .filter-form select {
+            margin-right: 20px;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+        .status-pendente { color: orange; font-weight: bold; }
+        .status-pago { color: green; font-weight: bold; }
+        .status-vencido { color: red; font-weight: bold; }
+        .status-em-processamento { color: blue; font-weight: bold; }
+
+        .btn-add-mensalidade {
+            background-color: #28a745;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for(\'home\') }}">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="{{ url_for(\'dashboard_admin\') }}">Painel Admin</a></li>
+                <li><a href="{{ url_for(\'logout\') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-content">
+            <h2>Gerenciamento de Mensalidades</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <!-- Formulário de Filtros -->
+            <form method="GET" action="{{ url_for(\'admin_gerenciar_mensalidades\') }}" class="filter-form">
+                <label for="filtro_aluno_nome">Aluno:</label>
+                <input type="text" name="filtro_aluno_nome" id="filtro_aluno_nome" value="{{ request.args.get(\'filtro_aluno_nome\', \'\') }}">
+                
+                <label for="filtro_turma">Turma:</label>
+                <select name="filtro_turma" id="filtro_turma">
+                    <option value="">Todas</option>
+                    {% for turma_nome in todas_turmas %}
+                        <option value="{{ turma_nome }}" {% if request.args.get(\'filtro_turma\') == turma_nome %}selected{% endif %}>{{ turma_nome }}</option>
+                    {% endfor %}
+                </select>
+
+                <label for="filtro_status">Status:</label>
+                <select name="filtro_status" id="filtro_status">
+                    <option value="">Todos</option>
+                    <option value="Pendente" {% if request.args.get(\'filtro_status\') == \'Pendente\' %}selected{% endif %}>Pendente</option>
+                    <option value="Pago" {% if request.args.get(\'filtro_status\') == \'Pago\' %}selected{% endif %}>Pago</option>
+                    <option value="Vencido" {% if request.args.get(\'filtro_status\') == \'Vencido\' %}selected{% endif %}>Vencido</option>
+                    <option value="Em Processamento" {% if request.args.get(\'filtro_status\') == \'Em Processamento\' %}selected{% endif %}>Em Processamento</option>
+                </select>
+                <button type="submit">Filtrar</button>
+                <a href="{{ url_for('admin_gerenciar_mensalidades') }}">Limpar Filtros</a>
+            </form>
+            
+            <a href="{{ url_for(\'admin_add_mensalidade_get\') }}" class="btn-add-mensalidade">Adicionar Nova Mensalidade</a>
+
+            <table class="table-mensalidades">
+                <thead>
+                    <tr>
+                        <th>ID Mensalidade</th>
+                        <th>Aluno</th>
+                        <th>Turma</th>
+                        <th>Mês Ref.</th>
+                        <th>Valor (R$)</th>
+                        <th>Vencimento</th>
+                        <th>Status</th>
+                        <th>Data Pagamento</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for mensalidade in mensalidades_list %}
+                    <tr>
+                        <td>{{ mensalidade.id_mensalidade }}</td>
+                        <td>{{ alunos_details[mensalidade.id_aluno].nome if mensalidade.id_aluno in alunos_details else \'N/A\' }}</td>
+                        <td>{{ alunos_details[mensalidade.id_aluno].turma if mensalidade.id_aluno in alunos_details else \'N/A\' }}</td>
+                        <td>{{ mensalidade.mes_referencia }}</td>
+                        <td>{{ "%.2f"|format(mensalidade.valor) }}</td>
+                        <td>{{ mensalidade.data_vencimento }}</td>
+                        <td><span class="status-{{ mensalidade.status.lower().replace(\' \', \'-\') }}">{{ mensalidade.status }}</span></td>
+                        <td>{{ mensalidade.data_pagamento if mensalidade.data_pagamento else \'-\' }}</td>
+                        <td>
+                            {% if mensalidade.status == \'Pendente\' or mensalidade.status == \'Vencido\' or mensalidade.status == \'Em Processamento\' %}
+                            <form class="actions-form" action="{{ url_for(\'admin_confirmar_pagamento_mensalidade\', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST">
+                                <button type="submit">Confirmar Pagamento</button>
+                            </form>
+                            <form class="actions-form" action="{{ url_for(\'admin_alterar_vencimento_mensalidade\', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST">
+                                <input type="date" name="nova_data_vencimento" required>
+                                <button type="submit">Alterar Venc.</button>
+                            </form>
+                            {% endif %}
+                            <!-- Adicionar link para ver boleto se existir -->
+                            {% if mensalidade.codigo_boleto_simulado %}
+                                <a href="{{ url_for('ver_boleto_simulado_get', nome_arquivo_boleto=mensalidade.codigo_boleto_simulado) }}" target="_blank">Ver Boleto</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="9">Nenhuma mensalidade encontrada com os filtros aplicados.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; {% now \'local\', \'%Y\' %} [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
+

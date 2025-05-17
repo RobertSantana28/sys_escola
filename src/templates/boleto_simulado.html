@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Boleto Simulado - Nome da Escola</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .boleto-container {
+            width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .boleto-header, .boleto-section {
+            border-bottom: 1px dashed #ccc;
+            padding-bottom: 10px;
+            margin-bottom: 10px;
+        }
+        .boleto-header img.logo-banco {
+            width: 150px;
+            float: left;
+            margin-right: 20px;
+        }
+        .boleto-header .banco-info {
+            float: left;
+            font-size: 1.2em;
+            font-weight: bold;
+            padding-top: 10px;
+        }
+        .boleto-header .codigo-barras-numero {
+            float: right;
+            font-size: 1.1em;
+            font-weight: bold;
+            padding-top: 10px;
+        }
+        .clear {
+            clear: both;
+        }
+        .boleto-section table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .boleto-section table td {
+            padding: 5px;
+            font-size: 0.9em;
+            border: 1px solid #eee;
+        }
+        .boleto-section table td.label {
+            background-color: #f9f9f9;
+            color: #555;
+            width: 150px;
+        }
+        .boleto-section table td.value {
+            font-weight: bold;
+        }
+        .codigo-barras-img {
+            width: 100%;
+            height: 70px;
+            background-color: #333;
+            color: white;
+            text-align: center;
+            line-height: 70px;
+            font-size: 1.5em;
+            margin-top: 20px;
+            overflow: hidden;
+            /* Simulação de código de barras */
+            background-image: repeating-linear-gradient(90deg, black, black 2px, white 2px, white 4px);
+        }
+        .instrucoes {
+            font-size: 0.8em;
+            color: #777;
+            margin-top: 10px;
+        }
+        .btn-confirmar-pagamento {
+            display: block;
+            width: 200px;
+            margin: 20px auto;
+            padding: 10px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            text-align: center;
+            text-decoration: none;
+            font-size: 1em;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="boleto-container">
+        <div class="boleto-header">
+            <!-- Simulação de logo de banco -->
+            <img src="https://via.placeholder.com/150x50.png?text=Banco+Simulado" alt="Logo Banco Simulado" class="logo-banco">
+            <div class="banco-info">001-9 | Banco Escola S.A.</div>
+            <div class="codigo-barras-numero">{{ linha_digitavel_simulada }}</div>
+            <div class="clear"></div>
+        </div>
+
+        <div class="boleto-section">
+            <table>
+                <tr>
+                    <td class="label">Local de Pagamento</td>
+                    <td class="value" colspan="3">Pagável em qualquer banco até o vencimento (SIMULAÇÃO)</td>
+                </tr>
+                <tr>
+                    <td class="label">Cedente</td>
+                    <td class="value" colspan="3">[Nome da Escola] - CNPJ: 00.000.000/0001-00 (SIMULADO)</td>
+                </tr>
+                <tr>
+                    <td class="label">Data do Documento</td>
+                    <td class="value">{{ data_emissao_simulada }}</td>
+                    <td class="label">Nº do Documento</td>
+                    <td class="value">{{ mensalidade.id_mensalidade }}</td>
+                </tr>
+                <tr>
+                    <td class="label">Espécie DOC</td>
+                    <td class="value">DM</td>
+                    <td class="label">Aceite</td>
+                    <td class="value">N</td>
+                </tr>
+                <tr>
+                    <td class="label">Data Processamento</td>
+                    <td class="value">{{ data_emissao_simulada }}</td>
+                    <td class="label">Nosso Número</td>
+                    <td class="value">{{ nosso_numero_simulado }}</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="boleto-section">
+            <table>
+                <tr>
+                    <td class="label">Sacado</td>
+                    <td class="value" colspan="3">{{ aluno_info.nome }} (Responsável: {{ pai_info.nome }})</td>
+                </tr>
+                <tr>
+                    <td class="label">Endereço do Sacado</td>
+                    <td class="value" colspan="3">Endereço Simulado, 123 - Bairro Exemplo - Cidade/UF</td>
+                </tr>
+                 <tr>
+                    <td class="label">Vencimento</td>
+                    <td class="value" style="text-align: right; font-size: 1.1em;"><strong>{{ mensalidade.data_vencimento }}</strong></td>
+                    <td class="label">Valor do Documento</td>
+                    <td class="value" style="text-align: right; font-size: 1.1em;"><strong>R$ {{ "%.2f"|format(mensalidade.valor) }}</strong></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="boleto-section">
+            <p>Instruções (texto de simulação):</p>
+            <ol class="instrucoes">
+                <li>Este é um boleto de simulação e não possui valor real.</li>
+                <li>Pagamento simulado pode ser "confirmado" na tela anterior após visualização deste boleto.</li>
+                <li>Em caso de dúvidas (simuladas), entre em contato com a secretaria da escola.</li>
+            </ol>
+        </div>
+
+        <div class="codigo-barras-img" title="{{ codigo_barras_simulado }}">
+            Código de Barras Simulado
+        </div>
+        <p style="text-align: center; font-family: 'Courier New', Courier, monospace; font-size: 0.9em;">{{ linha_digitavel_simulada }}</p>
+        
+        {% if not mensalidade.status == 'Pago' %}
+        <form action="{{ url_for('registrar_pagamento_simulado', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST">
+            <button type="submit" class="btn-confirmar-pagamento">Confirmar Pagamento (Simulado)</button>
+        </form>
+        {% else %}
+        <p style="text-align:center; color: green; font-weight: bold; margin-top: 20px;">Este boleto já foi pago em {{mensalidade.data_pagamento}}.</p>
+        {% endif %}
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('visualizar_financeiro_do_pai') }}">Voltar para Minhas Mensalidades</a>
+        </div>
+
+    </div>
+</body>
+</html>
+

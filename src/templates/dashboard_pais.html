@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta de Notas - Nome da Escola</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Nome da Escola</a>
+            </div>            <ul>
+                <li><a href="/">Página Inicial</a></li>
+                <li><a href="{{ url_for('visualizar_financeiro_do_pai') }}">Financeiro</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <section id="pais-dashboard">
+            <h2>Portal dos Pais - Boletim Escolar</h2>
+            <p>Bem-vindo(a) {{ session.get('nome_display_pai') }}! Aqui você pode consultar as notas do seu filho(a).</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for category, message in messages %}
+                  <li class="flash-{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+
+            <div class="aluno-info">
+                <h3>Informações do Aluno</h3>
+                <p><strong>Nome:</strong> {{ session.get('nome_aluno') }}</p>
+                <p><strong>Turma:</strong> {{ session.get('turma_aluno') }}</p>
+                <p><strong>Ano Letivo:</strong> 2025</p>
+            </div>
+
+            <div class="notas-visualizacao">
+                <h3>Boletim de Notas</h3>
+                {% if notas_aluno %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Disciplina</th>
+                            <th>Período</th>
+                            <th>Nota</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nota in notas_aluno %}
+                        <tr>
+                            <td>{{ nota.disciplina }}</td>
+                            <td>{{ nota.periodo }}</td>
+                            <td>{{ nota.nota }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                    <p>Nenhuma nota registrada para o aluno no momento.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

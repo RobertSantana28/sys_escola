@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Professores - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .actions a {
+            margin-right: 10px;
+            text-decoration: none;
+            color: #e8491d;
+        }
+        .actions a:hover {
+            text-decoration: underline;
+        }
+        .form-container {
+            margin-bottom: 30px;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        .form-container h4 {
+            margin-top: 0;
+        }
+        .table-container table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .table-container th, .table-container td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .table-container th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav class="container">
+            <div class="logo">
+                <a href="{{ url_for('home') }}">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('dashboard_admin') }}">Painel Admin</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container dashboard-container">
+        <section id="manage-professors">
+            <h2>Gerenciar Professores</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="messages">
+                    {% for category, message in messages %}
+                        <div class="alert alert-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="form-container">
+                <h4>Adicionar Novo Professor</h4>
+                <form method="POST" action="{{ url_for('admin_add_professor') }}">
+                    <div class="form-group">
+                        <label for="nome">Nome Completo:</label>
+                        <input type="text" id="nome" name="nome" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="username">Usuário (para login):</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="senha">Senha:</label>
+                        <input type="password" id="senha" name="senha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="disciplinas">Disciplinas (separadas por vírgula):</label>
+                        <input type="text" id="disciplinas" name="disciplinas">
+                    </div>
+                    <button type="submit" class="cta-button">Adicionar Professor</button>
+                </form>
+            </div>
+
+            <div class="table-container">
+                <h4>Professores Cadastrados</h4>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nome</th>
+                            <th>Usuário</th>
+                            <th>Disciplinas</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for prof_id, professor in professores.items() %}
+                        <tr>
+                            <td>{{ prof_id }}</td>
+                            <td>{{ professor.nome }}</td>
+                            <td>{{ professor.username }}</td>
+                            <td>{{ professor.disciplinas|join(", ") }}</td>
+                            <td class="actions">
+                                <a href="{{ url_for('admin_edit_professor_get', professor_id=prof_id) }}">Editar</a>
+                                <a href="{{ url_for('admin_delete_professor', professor_id=prof_id) }}" onclick="return confirm('Tem certeza que deseja excluir este professor? Esta ação não pode ser desfeita.');">Excluir</a>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr>
+                            <td colspan="5">Nenhum professor cadastrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
+

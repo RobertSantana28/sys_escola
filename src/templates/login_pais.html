@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login dos Pais - Nome da Escola</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="/">Página Inicial</a></li>
+                <li><a href="{{ url_for('login_professores_get') }}">Portal do Professor</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="login-container">
+        <section id="login-form-section">
+            <h2>Portal dos Pais</h2>
+            <p>Acesse para visualizar as notas do seu filho(a).</p>
+            <form action="{{ url_for('login_pais_post') }}" method="post">
+                <div class="form-group">
+                    <label for="username_pai">Usuário (Pai/Responsável):</label>
+                    <input type="text" id="username_pai" name="username_pai" required>
+                </div>
+                <div class="form-group">
+                    <label for="password_pai">Senha:</label>
+                    <input type="password" id="password_pai" name="password_pai" required>
+                </div>
+                <button type="submit" class="cta-button">Entrar</button>
+            </form>
+            <!-- Adicionar link para "Esqueci minha senha" futuramente -->
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

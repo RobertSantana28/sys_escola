@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel do Professor - Nome da Escola</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="/">Página Inicial</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-container">
+        <section id="professor-dashboard">
+            <h2>Painel do Professor - {{ session.get('nome_display') }}</h2>
+            <p>Bem-vindo! Aqui você pode gerenciar as notas dos seus alunos.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for category, message in messages %}
+                  <li class="flash-{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
+
+            <!-- Seção de Gerenciamento de Notas -->
+            <div class="notas-gerenciamento">
+                <h3>Lançar/Editar Notas</h3>
+                <form method="POST" action="{{ url_for('lancar_nota') }}">
+                    <div class="form-group">
+                        <label for="turma">Turma:</label>
+                        <select name="turma" id="turma" required>
+                            {% for t in turmas %}
+                            <option value="{{ t }}">{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="aluno">Aluno:</label>
+                        <select name="aluno" id="aluno" required>
+                            <!-- Alunos serão populados via JS ou recarregamento da página -->
+                            {% for turma_nome, alunos_lista in alunos_por_turma.items() %}
+                                {% for aluno_info in alunos_lista %}
+                                    <option value="{{ aluno_info.id }}" data-turma="{{ turma_nome }}">{{ aluno_info.nome }} ({{ turma_nome }})</option>
+                                {% endfor %}
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="disciplina">Disciplina:</label>
+                        <input type="text" name="disciplina" id="disciplina" required placeholder="Ex: Matemática">
+                    </div>
+                    <div class="form-group">
+                        <label for="nota">Nota:</label>
+                        <input type="number" name="nota" id="nota" step="0.1" min="0" max="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="periodo">Período Avaliativo:</label>
+                        <input type="text" name="periodo" id="periodo" required placeholder="Ex: 1º Bimestre">
+                    </div>
+                    <button type="submit" class="cta-button">Salvar Nota</button>
+                </form>
+            </div>
+
+            <div class="notas-visualizacao">
+                <h3>Notas Lançadas</h3>
+                {% if notas_lancadas %}
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Aluno</th>
+                            <th>Turma</th>
+                            <th>Disciplina</th>
+                            <th>Período</th>
+                            <th>Nota</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for nota_info in notas_lancadas %}
+                        <tr>
+                            <td>{{ nota_info.aluno }}</td>
+                            <td>{{ nota_info.turma }}</td>
+                            <td>{{ nota_info.disciplina }}</td>
+                            <td>{{ nota_info.periodo }}</td>
+                            <td>{{ nota_info.nota }}</td>
+                            <td><a href="#">Editar</a> | <a href="#">Excluir</a></td> <!-- Links de ação placeholder -->
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% else %}
+                    <p>Nenhuma nota lançada ainda.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+    <script>
+        // Script simples para filtrar alunos baseado na turma selecionada (pode ser melhorado)
+        document.addEventListener('DOMContentLoaded', function() {
+            const turmaSelect = document.getElementById('turma');
+            const alunoSelect = document.getElementById('aluno');
+            const todosAlunosOptions = Array.from(alunoSelect.options);
+
+            function filtrarAlunos() {
+                const turmaSelecionada = turmaSelect.value;
+                // Limpa as opções atuais, exceto a primeira se for um placeholder
+                while (alunoSelect.options.length > 0) {
+                    alunoSelect.remove(0);
+                }
+
+                todosAlunosOptions.forEach(option => {
+                    if (option.dataset.turma === turmaSelecionada || !turmaSelecionada) {
+                        alunoSelect.add(option.cloneNode(true));
+                    }
+                });
+                 // Se nenhuma turma estiver selecionada, ou se a turma selecionada não tiver alunos (improvável com o mock atual)
+                if (alunoSelect.options.length === 0 && todosAlunosOptions.length > 0) {
+                     // Adiciona um placeholder ou uma mensagem
+                    const placeholderOption = document.createElement('option');
+                    placeholderOption.value = "";
+                    placeholderOption.textContent = "Selecione uma turma primeiro";
+                    placeholderOption.disabled = true;
+                    placeholderOption.selected = true;
+                    alunoSelect.add(placeholderOption);
+                } else if (alunoSelect.options.length > 0){
+                    alunoSelect.selectedIndex = 0; // Seleciona o primeiro aluno da lista filtrada
+                }
+            }
+
+            turmaSelect.addEventListener('change', filtrarAlunos);
+            // Chama a função inicialmente para popular corretamente se uma turma já estiver selecionada (ex: ao voltar na página)
+            filtrarAlunos();
+        });
+    </script>
+</body>
+</html>

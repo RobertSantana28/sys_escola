@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minhas Mensalidades - Nome da Escola</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .mensalidade-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            background-color: #f9f9f9;
+        }
+        .mensalidade-header h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .mensalidade-info p {
+            margin: 5px 0;
+            color: #555;
+        }
+        .mensalidade-info strong {
+            color: #000;
+        }
+        .status-pendente {
+            color: orange;
+            font-weight: bold;
+        }
+        .status-pago {
+            color: green;
+            font-weight: bold;
+        }
+        .status-vencido {
+            color: red;
+            font-weight: bold;
+        }
+        .status-em-processamento {
+            color: blue;
+            font-weight: bold;
+        }
+        .actions button {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            margin-top: 10px;
+        }
+        .actions .btn-pagar {
+            background-color: #28a745;
+            color: white;
+        }
+        .actions .btn-ver-boleto {
+            background-color: #007bff;
+            color: white;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="/">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('home') }}">Página Inicial</a></li>
+                <li><a href="{{ url_for('dashboard_pais') }}">Meu Painel</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-content">
+            <h2>Minhas Mensalidades</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% if mensalidades_aluno %}
+                {% for mensalidade in mensalidades_aluno %}
+                <div class="mensalidade-card">
+                    <div class="mensalidade-header">
+                        <h3>Mensalidade: {{ mensalidade.mes_referencia }}</h3>
+                    </div>
+                    <div class="mensalidade-info">
+                        <p><strong>Aluno:</strong> {{ aluno_nome }}</p>
+                        <p><strong>Valor:</strong> R$ {{ "%.2f"|format(mensalidade.valor) }}</p>
+                        <p><strong>Vencimento:</strong> {{ mensalidade.data_vencimento }}</p>
+                        <p><strong>Status:</strong> 
+                            <span class="status-{{ mensalidade.status.lower().replace(' ', '-') }}">
+                                {{ mensalidade.status }}
+                            </span>
+                        </p>
+                        {% if mensalidade.data_pagamento %}
+                            <p><strong>Data do Pagamento:</strong> {{ mensalidade.data_pagamento }}</p>
+                        {% endif %}
+                    </div>
+                    <div class="actions">
+                        {% if mensalidade.status == 'Pendente' or mensalidade.status == 'Vencido' %}
+                            <form action="{{ url_for('gerar_boleto_simulado', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST" style="display: inline;">
+                                <button type="submit" class="btn-pagar">Gerar Boleto Simulado</button>
+                            </form>
+                        {% elif mensalidade.status == 'Em Processamento' %}
+                            <span class="status-em-processamento">Pagamento em processamento. Aguardando confirmação da escola.</span>
+                            {% if mensalidade.codigo_boleto_simulado %}
+                                <a href="{{ url_for('ver_boleto_simulado_get', nome_arquivo_boleto=mensalidade.codigo_boleto_simulado) }}" target="_blank" class="btn-ver-boleto" style="text-decoration: none; display: block; margin-top: 10px;">Ver Boleto</a>
+                            {% endif %}
+                        {% elif mensalidade.status == 'Pago' and mensalidade.codigo_boleto_simulado %}
+                             <a href="{{ url_for('ver_boleto_simulado_get', nome_arquivo_boleto=mensalidade.codigo_boleto_simulado) }}" target="_blank" class="btn-ver-boleto" style="text-decoration: none;">Ver Boleto Pago</a>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p>Nenhuma mensalidade encontrada para este aluno.</p>
+            {% endif %}
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; {% now 'local', '%Y' %} [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>
+

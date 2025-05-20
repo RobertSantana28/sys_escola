@@ -3,44 +3,295 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login dos Pais - Nome da Escola</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/login.css') }}">
+    <title>Portal dos Pais - Escola Futuro Brilhante</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-light: #3b82f6;
+            --primary-dark: #1d4ed8;
+            --secondary: #10b981;
+            --accent: #ef4444;
+            --dark: #1e293b;
+            --darker: #0f172a;
+            --light: #f8fafc;
+            --gray: #64748b;
+            --light-gray: #e2e8f0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            line-height: 1.6;
+            color: var(--dark);
+            background-color: #f5f7fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* CABEÇALHO MODERNO */
+        header {
+            background: white;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            padding: 0 5%;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+        }
+
+        .logo img {
+            height: 40px;
+            margin-right: 12px;
+        }
+
+        .logo-text {
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: var(--darker);
+            text-decoration: none;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+        }
+
+        .nav-links a {
+            color: var(--dark);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a i {
+            margin-right: 8px;
+        }
+
+        /* CONTAINER DE LOGIN */
+        .login-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 3rem 5%;
+        }
+
+        #login-form-section {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            padding: 3rem;
+            width: 100%;
+            max-width: 500px;
+            text-align: center;
+            animation: fadeIn 0.6s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        #login-form-section h2 {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: var(--darker);
+        }
+
+        #login-form-section p {
+            color: var(--gray);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: var(--darker);
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-radius: 8px;
+            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .cta-button {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(37, 99, 235, 0.3);
+        }
+
+        .forgot-password {
+            display: inline-block;
+            margin-top: 1.5rem;
+            color: var(--gray);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .forgot-password:hover {
+            color: var(--primary);
+        }
+
+        /* FOOTER */
+        footer {
+            background: var(--darker);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: auto;
+        }
+
+        /* RESPONSIVIDADE */
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 0;
+            }
+            
+            .nav-links li {
+                margin-left: 1.5rem;
+            }
+            
+            #login-form-section {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .logo-text {
+                font-size: 1.1rem;
+            }
+            
+            .nav-links a span {
+                display: none;
+            }
+            
+            .nav-links a i {
+                margin-right: 0;
+                font-size: 1.2rem;
+            }
+            
+            #login-form-section {
+                padding: 1.5rem;
+            }
+            
+            #login-form-section h2 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <!-- CABEÇALHO MODERNO -->
     <header>
         <nav>
-            <div class="logo">
-                <a href="/">Nome da Escola</a>
-            </div>
-            <ul>
-                <li><a href="/">Página Inicial</a></li>
-                <li><a href="{{ url_for('login_professores_get') }}">Portal do Professor</a></li>
+            <a href="/" class="logo">
+                <img src="https://via.placeholder.com/40x40" alt="Logo da Escola">
+                <span class="logo-text">Escola Futuro Brilhante</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/"><i class="fas fa-home"></i> <span>Página Inicial</span></a></li>
+                <li><a href="{{ url_for('login_professores_get') }}"><i class="fas fa-chalkboard-teacher"></i> <span>Portal do Professor</span></a></li>
             </ul>
         </nav>
     </header>
 
+    <!-- FORMULÁRIO DE LOGIN -->
     <main class="login-container">
         <section id="login-form-section">
             <h2>Portal dos Pais</h2>
-            <p>Acesse para visualizar as notas do seu filho(a).</p>
+            <p>Acesse para acompanhar o desempenho do seu filho(a)</p>
+            
             <form action="{{ url_for('login_pais_post') }}" method="post">
                 <div class="form-group">
-                    <label for="username_pai">Usuário (Pai/Responsável):</label>
-                    <input type="text" id="username_pai" name="username_pai" required>
+                    <label for="username_pai">Usuário (Pai/Responsável)</label>
+                    <input type="text" id="username_pai" name="username_pai" required placeholder="Digite seu usuário">
                 </div>
+                
                 <div class="form-group">
-                    <label for="password_pai">Senha:</label>
-                    <input type="password" id="password_pai" name="password_pai" required>
+                    <label for="password_pai">Senha</label>
+                    <input type="password" id="password_pai" name="password_pai" required placeholder="Digite sua senha">
                 </div>
-                <button type="submit" class="cta-button">Entrar</button>
+                
+                <button type="submit" class="cta-button">
+                    <i class="fas fa-sign-in-alt"></i> Entrar
+                </button>
+                
+                <a href="#" class="forgot-password">
+                    <i class="fas fa-question-circle"></i> Esqueci minha senha
+                </a>
             </form>
-            <!-- Adicionar link para "Esqueci minha senha" futuramente -->
         </section>
     </main>
 
+    <!-- RODAPÉ -->
     <footer>
-        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Escola Futuro Brilhante. Todos os direitos reservados.</p>
     </footer>
+
+    <!-- ANIMAÇÕES -->
+    <script>
+        // Adiciona classe de animação quando a página carrega
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('login-form-section').classList.add('animate');
+        });
+    </script>
 </body>
 </html>

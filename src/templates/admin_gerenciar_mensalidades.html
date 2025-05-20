@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gerenciar Mensalidades - Admin</title>
-    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/style.css\') }}">
-    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/dashboard.css\') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <style>
         .table-mensalidades {
             width: 100%;
@@ -24,7 +24,7 @@
             display: inline-block;
             margin-right: 5px;
         }
-        .actions-form button, .actions-form select, .actions-form input[type=\"date\"] {
+        .actions-form button, .actions-form select, .actions-form input[type="date"] {
             padding: 5px 8px;
             font-size: 0.9em;
         }
@@ -65,11 +65,11 @@
     <header>
         <nav>
             <div class="logo">
-                <a href="{{ url_for(\'home\') }}">Nome da Escola</a>
+                <a href="{{ url_for('home') }}">Nome da Escola</a>
             </div>
             <ul>
-                <li><a href="{{ url_for(\'dashboard_admin\') }}">Painel Admin</a></li>
-                <li><a href="{{ url_for(\'logout\') }}">Sair</a></li>
+                <li><a href="{{ url_for('dashboard_admin') }}">Painel Admin</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
             </ul>
         </nav>
     </header>
@@ -89,31 +89,31 @@
             {% endwith %}
 
             <!-- Formulário de Filtros -->
-            <form method="GET" action="{{ url_for(\'admin_gerenciar_mensalidades\') }}" class="filter-form">
+            <form method="GET" action="{{ url_for('admin_gerenciar_mensalidades') }}" class="filter-form">
                 <label for="filtro_aluno_nome">Aluno:</label>
-                <input type="text" name="filtro_aluno_nome" id="filtro_aluno_nome" value="{{ request.args.get(\'filtro_aluno_nome\', \'\') }}">
+                <input type="text" name="filtro_aluno_nome" id="filtro_aluno_nome" value="{{ request.args.get('filtro_aluno_nome', '') }}">
                 
                 <label for="filtro_turma">Turma:</label>
                 <select name="filtro_turma" id="filtro_turma">
                     <option value="">Todas</option>
                     {% for turma_nome in todas_turmas %}
-                        <option value="{{ turma_nome }}" {% if request.args.get(\'filtro_turma\') == turma_nome %}selected{% endif %}>{{ turma_nome }}</option>
+                        <option value="{{ turma_nome }}" {% if request.args.get('filtro_turma') == turma_nome %}selected{% endif %}>{{ turma_nome }}</option>
                     {% endfor %}
                 </select>
 
                 <label for="filtro_status">Status:</label>
                 <select name="filtro_status" id="filtro_status">
                     <option value="">Todos</option>
-                    <option value="Pendente" {% if request.args.get(\'filtro_status\') == \'Pendente\' %}selected{% endif %}>Pendente</option>
-                    <option value="Pago" {% if request.args.get(\'filtro_status\') == \'Pago\' %}selected{% endif %}>Pago</option>
-                    <option value="Vencido" {% if request.args.get(\'filtro_status\') == \'Vencido\' %}selected{% endif %}>Vencido</option>
-                    <option value="Em Processamento" {% if request.args.get(\'filtro_status\') == \'Em Processamento\' %}selected{% endif %}>Em Processamento</option>
+                    <option value="Pendente" {% if request.args.get('filtro_status') == 'Pendente' %}selected{% endif %}>Pendente</option>
+                    <option value="Pago" {% if request.args.get('filtro_status') == 'Pago' %}selected{% endif %}>Pago</option>
+                    <option value="Vencido" {% if request.args.get('filtro_status') == 'Vencido' %}selected{% endif %}>Vencido</option>
+                    <option value="Em Processamento" {% if request.args.get('filtro_status') == 'Em Processamento' %}selected{% endif %}>Em Processamento</option>
                 </select>
                 <button type="submit">Filtrar</button>
                 <a href="{{ url_for('admin_gerenciar_mensalidades') }}">Limpar Filtros</a>
             </form>
             
-            <a href="{{ url_for(\'admin_add_mensalidade_get\') }}" class="btn-add-mensalidade">Adicionar Nova Mensalidade</a>
+            <a href="{{ url_for('admin_add_mensalidade_get') }}" class="btn-add-mensalidade">Adicionar Nova Mensalidade</a>
 
             <table class="table-mensalidades">
                 <thead>
@@ -133,19 +133,19 @@
                     {% for mensalidade in mensalidades_list %}
                     <tr>
                         <td>{{ mensalidade.id_mensalidade }}</td>
-                        <td>{{ alunos_details[mensalidade.id_aluno].nome if mensalidade.id_aluno in alunos_details else \'N/A\' }}</td>
-                        <td>{{ alunos_details[mensalidade.id_aluno].turma if mensalidade.id_aluno in alunos_details else \'N/A\' }}</td>
+                        <td>{{ alunos_details[mensalidade.id_aluno].nome if mensalidade.id_aluno in alunos_details else 'N/A' }}</td>
+                        <td>{{ alunos_details[mensalidade.id_aluno].turma if mensalidade.id_aluno in alunos_details else 'N/A' }}</td>
                         <td>{{ mensalidade.mes_referencia }}</td>
                         <td>{{ "%.2f"|format(mensalidade.valor) }}</td>
                         <td>{{ mensalidade.data_vencimento }}</td>
-                        <td><span class="status-{{ mensalidade.status.lower().replace(\' \', \'-\') }}">{{ mensalidade.status }}</span></td>
-                        <td>{{ mensalidade.data_pagamento if mensalidade.data_pagamento else \'-\' }}</td>
+                        <td><span class="status-{{ mensalidade.status.lower().replace(' ', '-') }}">{{ mensalidade.status }}</span></td>
+                        <td>{{ mensalidade.data_pagamento if mensalidade.data_pagamento else '-' }}</td>
                         <td>
-                            {% if mensalidade.status == \'Pendente\' or mensalidade.status == \'Vencido\' or mensalidade.status == \'Em Processamento\' %}
-                            <form class="actions-form" action="{{ url_for(\'admin_confirmar_pagamento_mensalidade\', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST">
+                            {% if mensalidade.status == 'Pendente' or mensalidade.status == 'Vencido' or mensalidade.status == 'Em Processamento' %}
+                            <form class="actions-form" action="{{ url_for('admin_confirmar_pagamento_mensalidade', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST">
                                 <button type="submit">Confirmar Pagamento</button>
                             </form>
-                            <form class="actions-form" action="{{ url_for(\'admin_alterar_vencimento_mensalidade\', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST">
+                            <form class="actions-form" action="{{ url_for('admin_alterar_vencimento_mensalidade', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST">
                                 <input type="date" name="nova_data_vencimento" required>
                                 <button type="submit">Alterar Venc.</button>
                             </form>
@@ -168,8 +168,7 @@
     </main>
 
     <footer>
-        <p>&copy; {% now \'local\', \'%Y\' %} [Nome da Escola]. Todos os direitos reservados.</p>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
     </footer>
 </body>
 </html>
-

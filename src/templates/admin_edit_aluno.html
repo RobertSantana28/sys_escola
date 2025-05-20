@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar Aluno - Admin</title>
-    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/style.css\') }}">
-    <link rel="stylesheet" href="{{ url_for(\'static\', filename=\'css/dashboard.css\') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <style>
         .form-container {
             margin-bottom: 30px;
@@ -22,12 +22,12 @@
     <header>
         <nav class="container">
             <div class="logo">
-                <a href="{{ url_for(\'home\') }}">Nome da Escola</a>
+                <a href="{{ url_for('home') }}">Nome da Escola</a>
             </div>
             <ul>
-                <li><a href="{{ url_for(\'admin_gerenciar_alunos\') }}">Gerenciar Alunos</a></li>
-                <li><a href="{{ url_for(\'dashboard_admin\') }}">Painel Admin</a></li>
-                <li><a href="{{ url_for(\'logout\') }}">Sair</a></li>
+                <li><a href="{{ url_for('admin_gerenciar_alunos') }}">Gerenciar Alunos</a></li>
+                <li><a href="{{ url_for('dashboard_admin') }}">Painel Admin</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
             </ul>
         </nav>
     </header>
@@ -48,7 +48,7 @@
 
             {% if aluno %}
             <div class="form-container">
-                <form method="POST" action="{{ url_for(\'admin_edit_aluno_post\', aluno_id=aluno_id, turma_original=turma_original) }}">
+                <form method="POST" action="{{ url_for('admin_edit_aluno_post', aluno_id=aluno_id, turma_original=turma_original) }}">
                     <div class="form-group">
                         <label for="nome_aluno">Nome Completo do Aluno:</label>
                         <input type="text" id="nome_aluno" name="nome_aluno" value="{{ aluno.nome }}" required>

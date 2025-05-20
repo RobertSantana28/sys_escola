@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adicionar Mensalidade - Admin</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <style>
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+        .btn-submit {
+            background-color: #28a745;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-cancel {
+            background-color: #6c757d;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            display: inline-block;
+            margin-right: 10px;
+            font-size: 16px;
+        }
+        .btn-container {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+            <div class="logo">
+                <a href="{{ url_for('home') }}">Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="{{ url_for('dashboard_admin') }}">Painel Admin</a></li>
+                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="dashboard-main">
+        <section class="dashboard-content">
+            <h2>Adicionar Nova Mensalidade</h2>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            <div class="form-container">
+                <form method="POST" action="{{ url_for('admin_add_mensalidade_post') }}">
+                    <div class="form-group">
+                        <label for="id_aluno">Aluno:</label>
+                        <select name="id_aluno" id="id_aluno" required>
+                            <option value="">Selecione um aluno</option>
+                            {% for aluno in todos_alunos %}
+                                <option value="{{ aluno.id }}">{{ aluno.nome }} ({{ aluno.turma }})</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="mes_referencia">Mês de Referência (AAAA-MM):</label>
+                        <input type="month" name="mes_referencia" id="mes_referencia" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="valor">Valor (R$):</label>
+                        <input type="number" name="valor" id="valor" step="0.01" min="0.01" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="data_vencimento">Data de Vencimento:</label>
+                        <input type="date" name="data_vencimento" id="data_vencimento" required>
+                    </div>
+
+                    <div class="btn-container">
+                        <a href="{{ url_for('admin_gerenciar_mensalidades') }}" class="btn-cancel">Cancelar</a>
+                        <button type="submit" class="btn-submit">Adicionar Mensalidade</button>
+                    </div>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+    </footer>
+</body>
+</html>

@@ -6,44 +6,349 @@
     <title>Consulta de Notas - Nome da Escola</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <!-- Adicionando Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --gray-color: #95a5a6;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo a {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo a i {
+            margin-right: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        nav ul li a:hover {
+            border-bottom: 2px solid white;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 5%;
+        }
+
+        #pais-dashboard {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+
+        h2 {
+            color: var(--dark-color);
+            margin-top: 0;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .welcome-message {
+            font-size: 1.1rem;
+            color: var(--dark-color);
+            margin-bottom: 2rem;
+            padding: 1rem;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid var(--primary-color);
+        }
+
+        .flashes {
+            margin-bottom: 1.5rem;
+        }
+
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 5px solid #28a745;
+        }
+
+        .flash-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 5px solid #dc3545;
+        }
+
+        .flash-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 5px solid #17a2b8;
+        }
+
+        .aluno-info {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            border-left: 4px solid var(--secondary-color);
+        }
+
+        .aluno-info h3 {
+            margin-top: 0;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .aluno-info h3 i {
+            margin-right: 10px;
+            color: var(--secondary-color);
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .info-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item strong {
+            display: block;
+            color: var(--gray-color);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.25rem;
+        }
+
+        .info-item p {
+            margin: 0;
+            color: var(--dark-color);
+            font-weight: 500;
+        }
+
+        .notas-visualizacao {
+            background-color: white;
+            border-radius: 8px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .notas-visualizacao h3 {
+            margin-top: 0;
+            color: var(--dark-color);
+            display: flex;
+            align-items: center;
+        }
+
+        .notas-visualizacao h3 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+
+        th {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem;
+            text-align: left;
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-color);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .logo {
+                margin-bottom: 1rem;
+            }
+
+            nav ul {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            nav ul li {
+                margin: 0;
+            }
+
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            #pais-dashboard {
+                padding: 1rem;
+            }
+
+            table {
+                display: block;
+                overflow-x: auto;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
         <nav>
             <div class="logo">
-                <a href="/">Nome da Escola</a>
-            </div>            <ul>
-                <li><a href="/">Página Inicial</a></li>
-                <li><a href="{{ url_for('visualizar_financeiro_do_pai') }}">Financeiro</a></li>
-                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+                <a href="/"><i class="fas fa-graduation-cap"></i> Nome da Escola</a>
+            </div>
+            <ul>
+                <li><a href="/"><i class="fas fa-home"></i> Página Inicial</a></li>
+                <li><a href="{{ url_for('visualizar_financeiro_do_pai') }}"><i class="fas fa-file-invoice-dollar"></i> Financeiro</a></li>
+                <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
             </ul>
         </nav>
     </header>
 
     <main class="dashboard-container">
         <section id="pais-dashboard">
-            <h2>Portal dos Pais - Boletim Escolar</h2>
-            <p>Bem-vindo(a) {{ session.get('nome_display_pai') }}! Aqui você pode consultar as notas do seu filho(a).</p>
+            <h2><i class="fas fa-user-graduate"></i> Portal dos Pais - Boletim Escolar</h2>
+            
+            <div class="welcome-message">
+                <i class="fas fa-user-circle"></i> Bem-vindo(a), {{ session.get('nome_display_pai') }}! Aqui você pode consultar as notas do seu filho(a).
+            </div>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
-              {% if messages %}
-                <ul class=flashes>
-                {% for category, message in messages %}
-                  <li class="flash-{{ category }}">{{ message }}</li>
-                {% endfor %}
-                </ul>
-              {% endif %}
+                {% if messages %}
+                    <div class="flashes">
+                    {% for category, message in messages %}
+                        <div class="flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
             {% endwith %}
 
             <div class="aluno-info">
-                <h3>Informações do Aluno</h3>
-                <p><strong>Nome:</strong> {{ session.get('nome_aluno') }}</p>
-                <p><strong>Turma:</strong> {{ session.get('turma_aluno') }}</p>
-                <p><strong>Ano Letivo:</strong> 2025</p>
+                <h3><i class="fas fa-info-circle"></i> Informações do Aluno</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <strong>Nome</strong>
+                        <p>{{ session.get('nome_aluno') }}</p>
+                    </div>
+                    <div class="info-item">
+                        <strong>Turma</strong>
+                        <p>{{ session.get('turma_aluno') }}</p>
+                    </div>
+                    <div class="info-item">
+                        <strong>Ano Letivo</strong>
+                        <p>2025</p>
+                    </div>
+                </div>
             </div>
 
             <div class="notas-visualizacao">
-                <h3>Boletim de Notas</h3>
+                <h3><i class="fas fa-book-open"></i> Boletim de Notas</h3>
                 {% if notas_aluno %}
                 <table>
                     <thead>
@@ -58,20 +363,30 @@
                         <tr>
                             <td>{{ nota.disciplina }}</td>
                             <td>{{ nota.periodo }}</td>
-                            <td>{{ nota.nota }}</td>
+                            <td>
+                                {% if nota.nota >= 6 %}
+                                    <span style="color: var(--secondary-color); font-weight: bold;">{{ nota.nota }}</span>
+                                {% else %}
+                                    <span style="color: var(--danger-color); font-weight: bold;">{{ nota.nota }}</span>
+                                {% endif %}
+                            </td>
                         </tr>
                         {% endfor %}
                     </tbody>
                 </table>
                 {% else %}
-                    <p>Nenhuma nota registrada para o aluno no momento.</p>
+                    <div class="empty-state">
+                        <i class="fas fa-book"></i>
+                        <h3>Nenhuma nota registrada</h3>
+                        <p>Não há notas cadastradas para o aluno no momento.</p>
+                    </div>
                 {% endif %}
             </div>
         </section>
     </main>
 
     <footer>
-        <p>&copy; 2025 [Nome da Escola]. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Nome da Escola. Todos os direitos reservados.</p>
     </footer>
 </body>
 </html>

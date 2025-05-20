@@ -367,7 +367,7 @@ def admin_gerenciar_turmas():
     if session.get('user_type') != 'admin':
         flash('Acesso não autorizado.', 'danger')
         return redirect(url_for('login_admin_get'))
-    return render_template('admin_turmas.html', turmas=TURMAS_MOCK)
+    return render_template('admin_turmas.html', turmas=TURMAS_MOCK, alunos_por_turma=ALUNOS_MOCK)
 
 @app.route('/admin/turmas/add', methods=['POST'])
 def admin_add_turma():
@@ -568,47 +568,13 @@ def logout():
     flash('Você foi desconectado.', 'info')
     return redirect(url_for('home'))
 
-if __name__ == '__main__':
-    NOTAS_GLOBAIS = [
-        {
-            'turma': '6A',
-            'aluno': 'João Silva',
-            'aluno_id': 'aluno1_id',
-            'disciplina': 'Matemática',
-            'nota': 8.5,
-            'periodo': '1º Bimestre',
-            'professor_que_lancou': 'professor1'
-        },
-        {
-            'turma': '6A',
-            'aluno': 'João Silva',
-            'aluno_id': 'aluno1_id',
-            'disciplina': 'Português',
-            'nota': 7.8,
-            'periodo': '1º Bimestre',
-            'professor_que_lancou': 'professor2'
-        },
-        {
-            'turma': '6A',
-            'aluno': 'Maria Oliveira',
-            'aluno_id': 'aluno2_id',
-            'disciplina': 'Matemática',
-            'nota': 9.2,
-            'periodo': '1º Bimestre',
-            'professor_que_lancou': 'professor1'
-        }
-    ]
-    app.run(host='0.0.0.0', port=5000, debug=True)
-
-
-
 # --- ROTAS DO MÓDULO FINANCEIRO (PAIS) ---
 @app.route("/visualizar_financeiro_do_pai", endpoint="visualizar_financeiro_do_pai")
 def visualizar_financeiro_do_pai():
     if session.get("user_type") != "pai":
         flash("Acesso não autorizado.", "danger")
         return redirect(url_for("login_pais_get"))
-
+        
     pai_username = session.get("username_pai")
     pai_info = PAIS_MOCK.get(pai_username)
     if not pai_info:
@@ -759,6 +725,218 @@ def ver_boleto_simulado_get(nome_arquivo_boleto):
                            nosso_numero_simulado=nosso_numero,
                            linha_digitavel_simulada=linha_digitavel,
                            codigo_barras_simulado=codigo_barras_num)
+
+@app.route("/registrar_pagamento_simulado/<id_mensalidade>", methods=["POST"])
+def registrar_pagamento_simulado(id_mensalidade):
+    if session.get("user_type") != "pai":
+        flash("Acesso não autorizado.", "danger")
+        return redirect(url_for("login_pais_get"))
+
+    mensalidade = MENSALIDADES_MOCK.get(id_mensalidade)
+    if not mensalidade:
+        flash("Mensalidade não encontrada.", "danger")
+        return redirect(url_for("visualizar_financeiro_do_pai"))
+
+    # Verificar se o pai logado é o responsável
+    pai_username = session.get("username_pai")
+    pai_info = PAIS_MOCK.get(pai_username)
+    if mensalidade.get("id_aluno") != pai_info.get("filho_id"):
+        flash("Acesso não autorizado a esta mensalidade.", "danger")
+        return redirect(url_for("visualizar_financeiro_do_pai"))
+
+    if mensalidade["status"] == "Pago":
+        flash("Esta mensalidade já foi paga.", "info")
+        return redirect(url_for("visualizar_financeiro_do_pai"))
+
+    MENSALIDADES_MOCK[id_mensalidade]["status"] = "Em Processamento"
+    # MENSALIDADES_MOCK[id_mensalidade]["data_pagamento"] = datetime.date.today().strftime("%Y-%m-%d") # Gestor confirma
+    flash("Pagamento simulado registrado! Aguardando confirmação da escola.", "success")
+    return redirect(url_for("visualizar_financeiro_do_pai"))
+
+
+# --- ROTAS DO MÓDULO FINANCEIRO (ADMIN) ---
+@app.route("/admin/mensalidades")
+def admin_gerenciar_mensalidades():
+    if session.get("user_type") != "admin":
+        flash("Acesso não autorizado.", "danger")
+        return redirect(url_for("login_admin_get"))
+
+    # Coletar todos os alunos para exibir nomes e turmas
+    alunos_details = {}
+    for turma, alunos_na_turma in ALUNOS_MOCK.items():
+        for aluno in alunos_na_turma:
+            alunos_details[aluno["id"]] = {"nome": aluno["nome"], "turma": turma, "pai_username": aluno.get("pai_username")}
+
+    mensalidades_filtradas = list(MENSALIDADES_MOCK.values())
+
+    # Aplicar filtros
+    filtro_aluno_nome = request.args.get("filtro_aluno_nome", "").strip().lower()
+    filtro_turma = request.args.get("filtro_turma", "").strip()
+    filtro_status = request.args.get("filtro_status", "").strip()
+
+    if filtro_aluno_nome:
+        mensalidades_filtradas = [m for m in mensalidades_filtradas if m["id_aluno"] in alunos_details and filtro_aluno_nome in alunos_details[m["id_aluno"]]["nome"].lower()]
+    
+    if filtro_turma:
+        mensalidades_filtradas = [m for m in mensalidades_filtradas if m["id_aluno"] in alunos_details and alunos_details[m["id_aluno"]]["turma"] == filtro_turma]
+
+    if filtro_status:
+        mensalidades_filtradas = [m for m in mensalidades_filtradas if m["status"] == filtro_status]
+        
+    # Atualizar status para Vencido se aplicável
+    for m in mensalidades_filtradas:
+        if m["status"] == "Pendente":
+            try:
+                data_vencimento = datetime.datetime.strptime(m["data_vencimento"], "%Y-%m-%d").date()
+                if data_vencimento < datetime.date.today():
+                    m["status"] = "Vencido"
+            except ValueError:
+                pass 
+
+    return render_template("admin_gerenciar_mensalidades.html", 
+                           mensalidades_list=mensalidades_filtradas, 
+                           alunos_details=alunos_details,
+                           todas_turmas=TURMAS_MOCK)
+
+@app.route("/admin/mensalidades/add", methods=["GET"])
+def admin_add_mensalidade_get():
+    if session.get("user_type") != "admin":
+        flash("Acesso não autorizado.", "danger")
+        return redirect(url_for("login_admin_get"))
+    
+    # Coletar todos os alunos para o dropdown
+    todos_alunos_list = []
+    for turma, alunos_na_turma in ALUNOS_MOCK.items():
+        for aluno in alunos_na_turma:
+            todos_alunos_list.append({"id": aluno["id"], "nome": aluno["nome"], "turma": turma})
+    todos_alunos_list.sort(key=lambda x: x["nome"]) # Ordenar por nome
+
+    return render_template("admin_add_mensalidade.html", todos_alunos=todos_alunos_list)
+
+@app.route("/admin/mensalidades/add", methods=["POST"])
+def admin_add_mensalidade_post():
+    if session.get("user_type") != "admin":
+        flash("Acesso não autorizado.", "danger")
+        return redirect(url_for("login_admin_get"))
+
+    id_aluno = request.form.get("id_aluno")
+    mes_referencia = request.form.get("mes_referencia") # Formato YYYY-MM
+    valor_str = request.form.get("valor")
+    data_vencimento = request.form.get("data_vencimento") # Formato YYYY-MM-DD
+
+    if not all([id_aluno, mes_referencia, valor_str, data_vencimento]):
+        flash("Todos os campos são obrigatórios.", "danger")
+        return redirect(url_for("admin_add_mensalidade_get"))
+    
+    try:
+        valor = float(valor_str)
+        if valor <= 0:
+            raise ValueError("Valor deve ser positivo")
+    except ValueError:
+        flash("Valor da mensalidade inválido.", "danger")
+        return redirect(url_for("admin_add_mensalidade_get"))
+
+    # Validar formato das datas (simplesmente para o mock)
+    try:
+        datetime.datetime.strptime(mes_referencia + "-01", "%Y-%m-%d") # Adiciona dia para validar mês/ano
+        datetime.datetime.strptime(data_vencimento, "%Y-%m-%d")
+    except ValueError:
+        flash("Formato de Mês de Referência (AAAA-MM) ou Data de Vencimento (AAAA-MM-DD) inválido.", "danger")
+        return redirect(url_for("admin_add_mensalidade_get"))
+
+    new_mensalidade_id = f"mensalidade{uuid.uuid4().hex[:6]}"
+    MENSALIDADES_MOCK[new_mensalidade_id] = {
+        "id_mensalidade": new_mensalidade_id,
+        "id_aluno": id_aluno,
+        "mes_referencia": mes_referencia,
+        "valor": valor,
+        "data_vencimento": data_vencimento,
+        "status": "Pendente",
+        "data_pagamento": None,
+        "codigo_boleto_simulado": None,
+        "link_boleto_simulado": None
+    }
+    flash("Nova mensalidade adicionada com sucesso!", "success")
+    return redirect(url_for("admin_gerenciar_mensalidades"))
+
+@app.route("/admin/mensalidades/confirmar_pagamento/<id_mensalidade>", methods=["POST"])
+def admin_confirmar_pagamento_mensalidade(id_mensalidade):
+    if session.get("user_type") != "admin":
+        flash("Acesso não autorizado.", "danger")
+        return redirect(url_for("login_admin_get"))
+
+    mensalidade = MENSALIDADES_MOCK.get(id_mensalidade)
+    if not mensalidade:
+        flash("Mensalidade não encontrada.", "danger")
+        return redirect(url_for("admin_gerenciar_mensalidades"))
+
+    MENSALIDADES_MOCK[id_mensalidade]["status"] = "Pago"
+    MENSALIDADES_MOCK[id_mensalidade]["data_pagamento"] = datetime.date.today().strftime("%Y-%m-%d")
+    flash(f"Pagamento da mensalidade {id_mensalidade} confirmado.", "success")
+    return redirect(url_for("admin_gerenciar_mensalidades"))
+
+@app.route("/admin/mensalidades/alterar_vencimento/<id_mensalidade>", methods=["POST"])
+def admin_alterar_vencimento_mensalidade(id_mensalidade):
+    if session.get("user_type") != "admin":
+        flash("Acesso não autorizado.", "danger")
+        return redirect(url_for("login_admin_get"))
+
+    nova_data_vencimento = request.form.get("nova_data_vencimento")
+    if not nova_data_vencimento:
+        flash("Nova data de vencimento é obrigatória.", "danger")
+        return redirect(url_for("admin_gerenciar_mensalidades"))
+    
+    try:
+        datetime.datetime.strptime(nova_data_vencimento, "%Y-%m-%d")
+    except ValueError:
+        flash("Formato da nova data de vencimento (AAAA-MM-DD) inválido.", "danger")
+        return redirect(url_for("admin_gerenciar_mensalidades"))
+
+    mensalidade = MENSALIDADES_MOCK.get(id_mensalidade)
+    if not mensalidade:
+        flash("Mensalidade não encontrada.", "danger")
+        return redirect(url_for("admin_gerenciar_mensalidades"))
+
+    MENSALIDADES_MOCK[id_mensalidade]["data_vencimento"] = nova_data_vencimento
+    # Se estava vencida e a nova data é futura, volta para pendente
+    if mensalidade["status"] == "Vencido":
+        if datetime.datetime.strptime(nova_data_vencimento, "%Y-%m-%d").date() >= datetime.date.today():
+            MENSALIDADES_MOCK[id_mensalidade]["status"] = "Pendente"
+            
+    flash(f"Data de vencimento da mensalidade {id_mensalidade} alterada para {nova_data_vencimento}.", "success")
+    return redirect(url_for("admin_gerenciar_mensalidades"))
+
+if __name__ == '__main__':
+    NOTAS_GLOBAIS = [
+        {
+            'turma': '6A',
+            'aluno': 'João Silva',
+            'aluno_id': 'aluno1_id',
+            'disciplina': 'Matemática',
+            'nota': 8.5,
+            'periodo': '1º Bimestre',
+            'professor_que_lancou': 'professor1'
+        },
+        {
+            'turma': '6A',
+            'aluno': 'João Silva',
+            'aluno_id': 'aluno1_id',
+            'disciplina': 'Português',
+            'nota': 7.8,
+            'periodo': '1º Bimestre',
+            'professor_que_lancou': 'professor2'
+        },
+        {
+            'turma': '6A',
+            'aluno': 'Maria Oliveira',
+            'aluno_id': 'aluno2_id',
+            'disciplina': 'Matemática',
+            'nota': 9.2,
+            'periodo': '1º Bimestre',
+            'professor_que_lancou': 'professor1'
+        }
+    ]
+    app.run(host='0.0.0.0', port=5000, debug=True)
 
 @app.route("/registrar_pagamento_simulado/<id_mensalidade>", methods=["POST"])
 def registrar_pagamento_simulado(id_mensalidade):

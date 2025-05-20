@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gerenciar Alunos - Admin</title>
+    <title>Gerenciar Turmas - Admin</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <style>
@@ -52,8 +52,8 @@
     </header>
 
     <main class="container dashboard-container">
-        <section id="manage-alunos">
-            <h2>Gerenciar Alunos</h2>
+        <section id="manage-turmas">
+            <h2>Gerenciar Turmas</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -66,58 +66,44 @@
             {% endwith %}
 
             <div class="form-container">
-                <h4>Adicionar Novo Aluno</h4>
-                <form method="POST" action="{{ url_for('admin_add_aluno') }}">
+                <h4>Adicionar Nova Turma</h4>
+                <form method="POST" action="{{ url_for('admin_add_turma') }}">
                     <div class="form-group">
-                        <label for="nome_aluno">Nome Completo do Aluno:</label>
-                        <input type="text" id="nome_aluno" name="nome_aluno" required>
+                        <label for="nome_turma">Nome da Turma:</label>
+                        <input type="text" id="nome_turma" name="nome_turma" required placeholder="Ex: 6A, 7B, 8C">
                     </div>
-                    <div class="form-group">
-                        <label for="turma_aluno">Turma:</label>
-                        <select id="turma_aluno" name="turma_aluno" required>
-                            {% for turma_item in turmas %}
-                            <option value="{{ turma_item }}">{{ turma_item }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="pai_username_aluno">Usuário do Pai/Responsável (para login dos pais):</label>
-                        <input type="text" id="pai_username_aluno" name="pai_username_aluno" required>
-                        <small>Certifique-se que o pai/responsável já está cadastrado ou será cadastrado no sistema de pais.</small>
-                    </div>
-                    <button type="submit" class="cta-button">Adicionar Aluno</button>
+                    <button type="submit" class="cta-button">Adicionar Turma</button>
                 </form>
             </div>
 
             <div class="table-container">
-                <h4>Alunos Cadastrados</h4>
+                <h4>Turmas Cadastradas</h4>
                 <table>
                     <thead>
                         <tr>
-                            <th>ID Aluno</th>
-                            <th>Nome</th>
-                            <th>Turma</th>
-                            <th>Pai/Responsável (Usuário)</th>
+                            <th>Nome da Turma</th>
+                            <th>Quantidade de Alunos</th>
                             <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for turma, lista_alunos in alunos_por_turma.items() %}
-                            {% for aluno in lista_alunos %}
-                            <tr>
-                                <td>{{ aluno.id }}</td>
-                                <td>{{ aluno.nome }}</td>
-                                <td>{{ turma }}</td>
-                                <td>{{ aluno.pai_username }}</td>
-                                <td class="actions">
-                                    <a href="{{ url_for('admin_edit_aluno_get', aluno_id=aluno.id, turma_original=turma) }}">Editar</a>
-                                    <a href="{{ url_for('admin_delete_aluno', aluno_id=aluno.id, turma=turma) }}" onclick="return confirm('Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.');">Excluir</a>
-                                </td>
-                            </tr>
-                            {% endfor %}
+                        {% for turma in turmas %}
+                        <tr>
+                            <td>{{ turma }}</td>
+                            <td>
+                                {% if turma in alunos_por_turma %}
+                                    {{ alunos_por_turma[turma]|length }}
+                                {% else %}
+                                    0
+                                {% endif %}
+                            </td>
+                            <td class="actions">
+                                <a href="{{ url_for('admin_delete_turma', nome_turma=turma) }}" onclick="return confirm('Tem certeza que deseja excluir esta turma? Esta ação não pode ser desfeita e só é possível se a turma não tiver alunos.');">Excluir</a>
+                            </td>
+                        </tr>
                         {% else %}
                         <tr>
-                            <td colspan="5">Nenhum aluno cadastrado.</td>
+                            <td colspan="3">Nenhuma turma cadastrada.</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -131,4 +117,3 @@
     </footer>
 </body>
 </html>
-

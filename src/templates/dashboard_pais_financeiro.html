@@ -6,57 +6,336 @@
     <title>Minhas Mensalidades - Nome da Escola</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <!-- Adicionando Font Awesome para ícones -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        .mensalidade-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
-            background-color: #f9f9f9;
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2ecc71;
+            --danger-color: #e74c3c;
+            --warning-color: #f39c12;
+            --dark-color: #2c3e50;
+            --light-color: #ecf0f1;
+            --gray-color: #95a5a6;
         }
-        .mensalidade-header h3 {
-            margin-top: 0;
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
             color: #333;
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 0;
         }
+
+        header {
+            background: linear-gradient(135deg, var(--primary-color), var(--dark-color));
+            color: white;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 5%;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .logo a {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 700;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+        }
+
+        .logo a i {
+            margin-right: 10px;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        nav ul li {
+            margin-left: 1.5rem;
+        }
+
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+        }
+
+        nav ul li a:hover {
+            border-bottom: 2px solid white;
+        }
+
+        .dashboard-main {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 5%;
+        }
+
+        .dashboard-content {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            padding: 2rem;
+        }
+
+        h2 {
+            color: var(--dark-color);
+            margin-top: 0;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+        }
+
+        h2 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .flashes {
+            margin-bottom: 1.5rem;
+        }
+
+        .flash-success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 5px solid #28a745;
+        }
+
+        .flash-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 5px solid #dc3545;
+        }
+
+        .flash-info {
+            background-color: #d1ecf1;
+            color: #0c5460;
+            padding: 1rem;
+            border-radius: 5px;
+            margin-bottom: 1rem;
+            border-left: 5px solid #17a2b8;
+        }
+
+        .mensalidade-card {
+            border: 1px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            background-color: white;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .mensalidade-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .mensalidade-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid #eee;
+        }
+
+        .mensalidade-header h3 {
+            margin: 0;
+            color: var(--dark-color);
+            font-size: 1.25rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .mensalidade-header h3 i {
+            margin-right: 10px;
+            color: var(--primary-color);
+        }
+
+        .mensalidade-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
         .mensalidade-info p {
-            margin: 5px 0;
+            margin: 0;
             color: #555;
         }
+
         .mensalidade-info strong {
-            color: #000;
+            color: var(--dark-color);
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--gray-color);
         }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.35rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
         .status-pendente {
-            color: orange;
-            font-weight: bold;
+            background-color: #fff3cd;
+            color: #856404;
         }
+
         .status-pago {
-            color: green;
-            font-weight: bold;
+            background-color: #d4edda;
+            color: #155724;
         }
+
         .status-vencido {
-            color: red;
-            font-weight: bold;
+            background-color: #f8d7da;
+            color: #721c24;
         }
+
         .status-em-processamento {
-            color: blue;
-            font-weight: bold;
+            background-color: #cce5ff;
+            color: #004085;
         }
-        .actions button {
-            padding: 10px 15px;
+
+        .actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 50px;
             cursor: pointer;
-            font-size: 1em;
-            margin-top: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
         }
-        .actions .btn-pagar {
-            background-color: #28a745;
+
+        .btn i {
+            margin-right: 8px;
+        }
+
+        .btn-pagar {
+            background-color: var(--secondary-color);
             color: white;
         }
-        .actions .btn-ver-boleto {
-            background-color: #007bff;
+
+        .btn-pagar:hover {
+            background-color: #218838;
+            transform: translateY(-2px);
+        }
+
+        .btn-ver-boleto {
+            background-color: var(--primary-color);
             color: white;
-            margin-left: 10px;
+        }
+
+        .btn-ver-boleto:hover {
+            background-color: #1d68a7;
+            transform: translateY(-2px);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--gray-color);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: #ddd;
+        }
+
+        footer {
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            padding: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        /* Responsividade */
+        @media (max-width: 768px) {
+            nav {
+                flex-direction: column;
+                padding: 1rem;
+            }
+
+            .logo {
+                margin-bottom: 1rem;
+            }
+
+            nav ul {
+                width: 100%;
+                justify-content: space-around;
+            }
+
+            nav ul li {
+                margin: 0;
+            }
+
+            .mensalidade-info {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-content {
+                padding: 1rem;
+            }
+        }
+
+        /* Efeito de onda no card */
+        .mensalidade-card::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background: linear-gradient(90deg, var(--primary-color), var(--secondary-color));
         }
     </style>
 </head>
@@ -64,19 +343,19 @@
     <header>
         <nav>
             <div class="logo">
-                <a href="/">Nome da Escola</a>
+                <a href="/"><i class="fas fa-graduation-cap"></i> Nome da Escola</a>
             </div>
             <ul>
-                <li><a href="{{ url_for('home') }}">Página Inicial</a></li>
-                <li><a href="{{ url_for('dashboard_pais') }}">Meu Painel</a></li>
-                <li><a href="{{ url_for('logout') }}">Sair</a></li>
+                <li><a href="{{ url_for('home') }}"><i class="fas fa-home"></i> Página Inicial</a></li>
+                <li><a href="{{ url_for('dashboard_pais') }}"><i class="fas fa-tachometer-alt"></i> Meu Painel</a></li>
+                <li><a href="{{ url_for('logout') }}"><i class="fas fa-sign-out-alt"></i> Sair</a></li>
             </ul>
         </nav>
     </header>
 
     <main class="dashboard-main">
         <section class="dashboard-content">
-            <h2>Minhas Mensalidades</h2>
+            <h2><i class="fas fa-file-invoice-dollar"></i> Minhas Mensalidades</h2>
 
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
@@ -92,46 +371,61 @@
                 {% for mensalidade in mensalidades_aluno %}
                 <div class="mensalidade-card">
                     <div class="mensalidade-header">
-                        <h3>Mensalidade: {{ mensalidade.mes_referencia }}</h3>
+                        <h3><i class="fas fa-calendar-alt"></i> Mensalidade: {{ mensalidade.mes_referencia }}</h3>
+                        <span class="status-badge status-{{ mensalidade.status.lower().replace(' ', '-') }}">
+                            {{ mensalidade.status }}
+                        </span>
                     </div>
                     <div class="mensalidade-info">
-                        <p><strong>Aluno:</strong> {{ aluno_nome }}</p>
-                        <p><strong>Valor:</strong> R$ {{ "%.2f"|format(mensalidade.valor) }}</p>
-                        <p><strong>Vencimento:</strong> {{ mensalidade.data_vencimento }}</p>
-                        <p><strong>Status:</strong> 
-                            <span class="status-{{ mensalidade.status.lower().replace(' ', '-') }}">
-                                {{ mensalidade.status }}
-                            </span>
-                        </p>
+                        <div>
+                            <strong>Aluno</strong>
+                            <p>{{ aluno_nome }}</p>
+                        </div>
+                        <div>
+                            <strong>Valor</strong>
+                            <p>R$ {{ "%.2f"|format(mensalidade.valor) }}</p>
+                        </div>
+                        <div>
+                            <strong>Vencimento</strong>
+                            <p>{{ mensalidade.data_vencimento }}</p>
+                        </div>
                         {% if mensalidade.data_pagamento %}
-                            <p><strong>Data do Pagamento:</strong> {{ mensalidade.data_pagamento }}</p>
+                        <div>
+                            <strong>Data do Pagamento</strong>
+                            <p>{{ mensalidade.data_pagamento }}</p>
+                        </div>
                         {% endif %}
                     </div>
                     <div class="actions">
                         {% if mensalidade.status == 'Pendente' or mensalidade.status == 'Vencido' %}
                             <form action="{{ url_for('gerar_boleto_simulado', id_mensalidade=mensalidade.id_mensalidade) }}" method="POST" style="display: inline;">
-                                <button type="submit" class="btn-pagar">Gerar Boleto Simulado</button>
+                                <button type="submit" class="btn btn-pagar"><i class="fas fa-barcode"></i> Gerar Boleto</button>
                             </form>
                         {% elif mensalidade.status == 'Em Processamento' %}
-                            <span class="status-em-processamento">Pagamento em processamento. Aguardando confirmação da escola.</span>
+                            <span class="status-badge status-em-processamento">
+                                <i class="fas fa-clock"></i> Pagamento em processamento
+                            </span>
                             {% if mensalidade.codigo_boleto_simulado %}
-                                <a href="{{ url_for('ver_boleto_simulado_get', nome_arquivo_boleto=mensalidade.codigo_boleto_simulado) }}" target="_blank" class="btn-ver-boleto" style="text-decoration: none; display: block; margin-top: 10px;">Ver Boleto</a>
+                                <a href="{{ url_for('ver_boleto_simulado_get', nome_arquivo_boleto=mensalidade.codigo_boleto_simulado) }}" target="_blank" class="btn btn-ver-boleto"><i class="fas fa-eye"></i> Ver Boleto</a>
                             {% endif %}
                         {% elif mensalidade.status == 'Pago' and mensalidade.codigo_boleto_simulado %}
-                             <a href="{{ url_for('ver_boleto_simulado_get', nome_arquivo_boleto=mensalidade.codigo_boleto_simulado) }}" target="_blank" class="btn-ver-boleto" style="text-decoration: none;">Ver Boleto Pago</a>
+                            <a href="{{ url_for('ver_boleto_simulado_get', nome_arquivo_boleto=mensalidade.codigo_boleto_simulado) }}" target="_blank" class="btn btn-ver-boleto"><i class="fas fa-receipt"></i> Comprovante</a>
                         {% endif %}
                     </div>
                 </div>
                 {% endfor %}
             {% else %}
-                <p>Nenhuma mensalidade encontrada para este aluno.</p>
+                <div class="empty-state">
+                    <i class="fas fa-file-invoice"></i>
+                    <h3>Nenhuma mensalidade encontrada</h3>
+                    <p>Não há mensalidades cadastradas para este aluno no momento.</p>
+                </div>
             {% endif %}
         </section>
     </main>
 
     <footer>
-        <p>&copy; {% now 'local', '%Y' %} [Nome da Escola]. Todos os direitos reservados.</p>
+        <p>&copy; 2025 Nome da Escola. Todos os direitos reservados.</p>
     </footer>
 </body>
 </html>
-
